@@ -29,11 +29,11 @@ def HashCrackerDictionary(hashes):
             # encode each line into bit so it can be hashed
             hashed_dict = str(hashlib.md5(line.encode()).hexdigest())
             # statement to check for correct password
-            for i in hashes:
-                if i == hashed_dict and line not in hashed_words:
+            for hash in hashes:
+                if hash == hashed_dict and line not in hashed_words:
                     hashed_words.append(line)
-                    print(i, "is the corresponding hash to", line)
-                    hashes.remove(i)    
+                    print(hash, "is the corresponding hash to", line)
+                    hashes.remove(hash)    
             if len(hashes) == 0:
                 break
     print(hashed_words)
@@ -44,26 +44,22 @@ def HashCrackerPermutations(hashes):
     time_start()
     global alphabet
     alphabet = ["a", "e", "c", "d"]
-    possible_strings = []
     hashed_words = []
     # if known how long the password is change it to its length + 1
     for r in range(1, len(alphabet) + 1):
         for s in itertools.product(alphabet, repeat=r):
-            possible_strings.append(''.join(s))
-            for permutations in possible_strings:
-                hashed_permutation = str(hashlib.md5(
-                    permutations.encode()).hexdigest())
-                for i in hashes:
-                    if i == hashed_permutation and permutations not in\
-                            hashed_words:
-                        hashed_words.append(permutations)
-                        print(i, "is the corresponding hash to", permutations)
-                        hashes.remove(i)
-                if len(hashes) == 0:
-                    break
-            else:
-                continue
-            break
+            hashed_perm = str(hashlib.md5(''.join(s).encode()).hexdigest())
+            for hash in hashes:
+                if hash == hashed_perm and s not in\
+                        hashed_words:
+                    hashed_words.append(s)
+                    print(hash, "is the corresponding hash to", ''.join(s))
+                    hashes.remove(hash)
+            if len(hashes) == 0:
+                break
+        else:
+            continue
+        break
     print(hashed_words)
     time_end()
 
