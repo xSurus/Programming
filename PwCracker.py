@@ -40,6 +40,11 @@ def HashCrackerDictionary(hashes):
     time_end()
 
 
+def generate_permutations(alphabet, length):
+    for s in itertools.product(alphabet, repeat=length):
+        yield s
+
+
 def HashCrackerPermutations(hashes):
     time_start()
     global alphabet
@@ -67,20 +72,22 @@ def HashCrackerPermutations(hashes):
 if __name__ == "__main__":
     pool = multiprocessing.Pool(4)
     parser = argparse.ArgumentParser(description='Crack a Hash')
+
     parser.add_argument("type", help="Choose with which method you'd like to \
-        crack a hash")
+        crack a hash", choices=["dictionary", "permutations"])
+
+    parser.add_argument("--multiprocessing", type=int, default=1)
+
     args = parser.parse_args()
-    if args.type == "d,m":
-        hashes = [input("Please input the hashed words: ").split()]
-        pool.map(HashCrackerDictionary, hashes)
-    elif args.type == "d,s":
-        hashes = input("Please input the hashed words: ").split()
-        HashCrackerDictionary(hashes)
-    elif args.type == "p,m":
-        hashes = [input("Please input the hashed words: ").split()]
-        pool.map(HashCrackerPermutations, hashes)
-    elif args.type == "p,s":
-        alphabet = input("Please input the amount of letter you'll use (The \
-letters should have a space between each one): ").split()
-        hashes = input("Please input the hashed words: ").split()
-        HashCrackerPermutations(hashes)
+    if args.type == "dictionary":
+        if args.multiprocessing == 1:
+            HashCrackerDictionary()
+        else:
+            HashCrackerDictionaryParallel(args.multiprocessing)
+    else:
+        if args.multiprocessing == 1:
+            HashCrackerPermutations()
+        else:
+            HashCrackerPermutations(args.multiprocessing)
+
+

@@ -48,6 +48,7 @@ def HashCrackerPermutations(hashes):
     # if known how long the password is change it to its length + 1
     for r in range(1, len(alphabet) + 1):
         for s in itertools.product(alphabet, repeat=r):
+            print(''.join(s))
             hashed_perm = str(hashlib.md5(''.join(s).encode()).hexdigest())
             for hash in hashes:
                 if hash == hashed_perm and s not in\
