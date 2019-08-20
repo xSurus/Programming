@@ -33,7 +33,7 @@ def HashCrackerDictionary(hashes):
                 if hash == hashed_dict and line not in hashed_words:
                     hashed_words.append(line)
                     print(hash, "is the corresponding hash to", line)
-                    hashes.remove(hash)    
+                    hashes.remove(hash)
             if len(hashes) == 0:
                 break
     print(hashed_words)
