@@ -6,20 +6,20 @@ import time
 import functools
 
 
-tries = 1
-num_hashes = 20
-num_workers = 4
 dict_name = "words_alpha.txt"
 hashfile_name = "list_of_hashes.txt"
-output_name = "benchmarks_dict.txt"
-time_tot = 0
-round_nmbr = 0
+output_name = "test.txt"
+num_hashes_start = 5
+#the amount of workers will go down from this number
+num_workers_start = 4
+
+
 def time_start():
-    global time_starter
     time_starter = time.time()
+    return time_starter
 
 
-def time_end():
+def time_end(time_starter):
     time_ended = time.time()
     time_total = time_ended - time_starter
     return time_total
@@ -29,6 +29,21 @@ def cracker(hashes, word):
     hashed_word = hashlib.md5(word.encode()).hexdigest()
     if hashed_word in hashes:
         pass
+
+def HashCrackerDictionary_SingleHashFile(dictionary, hashfile, num_hashes):
+    with open(dictionary, "r") as file:
+        lines = file.readlines()
+        # creates a list with the words from the dictionary
+        list_dict = [x.strip() for x in lines]
+        with open(hashfile, "r") as file:
+            single = file.readlines()
+            list_hashes = [y.strip() for y in single]
+            for line in list_dict:
+                # encode each line into bit so it can be hashed
+                hashed_dict = str(hashlib.md5(line.encode()).hexdigest())
+                # statement to check for correct password
+                if hashed_dict in list_hashes[:num_hashes]:
+                    pass
 
 
 def HashCrackerDictionaryHashFile(workers, dictionary, hashfile, num_hashes):
@@ -47,27 +62,47 @@ def HashCrackerDictionaryHashFile(workers, dictionary, hashfile, num_hashes):
             pool.terminate()
 
 
-if __name__ == "__main__":
-    t1 = time.time()
+def benchmark_single():
+    round_nmbr = 0
+    num_hashes = num_hashes_start
+    f = open("benchmarks_dict.txt", "a")        
+    f.write("Singlethread\n")
+    while num_hashes <= 5000:
+        t1 = time_start()
+        for i in range(10):
+            HashCrackerDictionary_SingleHashFile(dict_name, hashfile_name, num_hashes)
+        t2 = time_end(t1)
+        time_av = t2 / 10
+        f.write(str(time_av) + "\n")
+        round_nmbr += 1
+        print(round_nmbr)
+        num_hashes += 20
+        f.close()        
+
+def bechmark_multi(num_hashes_start, num_workers_start):
+    round_nmbr = 0
+    num_hashes = num_hashes_start
+    num_workers = num_workers_start
     while num_workers > 0:
-        f = open("benchmarks_dict.txt", "a")
+        f = open(output_name, "a")
+        f.write("Number of workers: " + str(num_workers) + "\n")
         while num_hashes <= 5000:
-            while tries < 11:
-                time_start()
+            t1 = time_start()
+            for i in range(10):
                 HashCrackerDictionaryHashFile(num_workers, dict_name, hashfile_name, num_hashes)
-                timed = time_end()
-                time_tot += timed
-                tries += 1
-            time_av = time_tot / 10
-            time_tot = 0
-            tries = 1
-            f.write(str(time_av) + ", ")
+            t2 = time_end(t1)
+            time_av = t2 / 10
+            f.write(str(time_av) + "\n")
             round_nmbr += 1
             print(round_nmbr)
             num_hashes += 20
-        round_nmbr = 0
+        round_nmbr, num_hashes = 0, 20
         num_workers -= 1
-        num_hashes = 20
-        f.write("workers: " + str(num_workers) + "\n")
         f.close()
-    t2 = time.time()
+    benchmark_single()
+
+if __name__ == "__main__":
+    ts = time_start()
+    bechmark_multi(num_hashes_start, num_workers_start)
+    te = time_end(ts)
+    print(f"Done:\nFinished all the permutations with {num_workers_start} workers until singleprocessing in {te} seconds")
