@@ -105,7 +105,7 @@ def becnhmark_multi(num_hashes_start, num_workers_start):
         round_nmbr, num_hashes = 0, 20
         num_workers -= 1
         f.close()
-
+    becnhmark_single()
 
 if __name__ == "__main__":
     ts = time_start()

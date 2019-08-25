@@ -5,7 +5,7 @@ import hashlib
 import time
 import functools
 
-
+# defines a time function to measure how long the program took
 def time_start():
     global time_start
     time_start = time.time()
@@ -16,21 +16,20 @@ def time_end():
     time_total = time_end - time_start
     print(time_total)
 
-
+# checks if the hashed word
 def cracker(hashes, word):
     hashed_word = hashlib.md5(word.encode()).hexdigest()
     if hashed_word in hashes:
         print(hashed_word, "is the corresponding hash to", word)
 
-
+# a wrapper for the cracker function, only used for permutations
 def cracker_perm_wrapper(hashes, pw):
     password = ''.join(pw)
     cracker(hashes, password)
 
-
+# hash from a dictionary, multiprocessing, file with hashes
 def HashCrackerDictionaryHashFile(workers, dictionary, hashfile):
     # importing the dictionary
-    # hashes = ["d2cbe65f53da8607e64173c1a83394fe"]
     pool = multiprocessing.Pool(workers)
     with open(dictionary, "r") as file:
         lines = file.readlines()
@@ -42,7 +41,7 @@ def HashCrackerDictionaryHashFile(workers, dictionary, hashfile):
             checker = functools.partial(cracker, list_hashes)
             result = pool.map(checker, list_dict)
 
-
+# hash from a dictionary, multiprocessing, list of hashes
 def HashCrackerDictionary(workers, dictionary, hashes):
     # importing the dictionary
     # hashes = ["d2cbe65f53da8607e64173c1a83394fe"]
@@ -54,7 +53,7 @@ def HashCrackerDictionary(workers, dictionary, hashes):
         checker = functools.partial(cracker, hashes)
         result = pool.map(checker, list_dict)
 
-
+# hash from a dictionary, singlethread, list of hashes
 def HashCrackerDictionary_single(dictionary, hashes):
     with open(dictionary, "r") as file:
         lines = file.readlines()
@@ -67,7 +66,7 @@ def HashCrackerDictionary_single(dictionary, hashes):
             if hashed_dict in hashes:
                 print(hashed_dict, "is the corresponding hash to", line)
 
-
+# hash from a dictionary, singlethread, hashes from a file
 def HashCrackerDictionary_SingleHashFile(dictionary, hashfile):
     with open(dictionary, "r") as file:
         lines = file.readlines()
@@ -83,7 +82,7 @@ def HashCrackerDictionary_SingleHashFile(dictionary, hashfile):
                 if hashed_dict in list_hashes:
                     print(hashed_dict, "is the corresponding hash to", line)
 
-
+# hash with permutations, multiprocessing, list of hashes
 def HashCrackerPermutations(workers, alphabet, max_length, hashes):
     # hashes = ["534b44a19bf18d20b71ecc4eb77c572f"]
     pool = multiprocessing.Pool(workers)
@@ -92,16 +91,17 @@ def HashCrackerPermutations(workers, alphabet, max_length, hashes):
         result = list(pool.imap(checker, itertools.product(list(alphabet),
                                 repeat=length), chunksize=100))
 
-
+# hash with permutations, singlethread, list of hashes
 def HashCrackerPermutations_single(alphabet, max_length, hashes):
     # if known how long the password is change it to its length + 1
     for length in range(1, max_length + 1):
         for s in itertools.product(list(alphabet), repeat=length):
             hashed_perm = str(hashlib.md5(''.join(s).encode()).hexdigest())
+            #checks if hashed string corresponds to pw/other input
             if hashed_perm in hashes:
                 print(hashed_perm, "is the corresponding hash to", ''.join(s))
 
-
+# hash with permutations, multiprocessing, file with hashes
 def HashCrackerPermutationsListHashes(workers, alphabet, max_length, hashfile):
     # hashes = ["534b44a19bf18d20b71ecc4eb77c572f"]
     pool = multiprocessing.Pool(workers)
@@ -113,7 +113,7 @@ def HashCrackerPermutationsListHashes(workers, alphabet, max_length, hashfile):
             result = list(pool.imap(checker, itertools.product(list(alphabet),
                                     repeat=length), chunksize=100))
 
-
+# hash with permutations, singlethread, file with hashes
 def HashCrackerPermutations_SingleHashFile(alphabet, max_length, hashfile):
     # if known how long the password is change it to its length + 1
     with open(hashfile, "r") as file:
@@ -122,11 +122,12 @@ def HashCrackerPermutations_SingleHashFile(alphabet, max_length, hashfile):
         for length in range(1, max_length + 1):
             for s in itertools.product(list(alphabet), repeat=length):
                 hashed_perm = str(hashlib.md5(''.join(s).encode()).hexdigest())
+                #checks if hashed string corresponds to pw/other input
                 if hashed_perm in list_hashes:
                     print(hashed_perm, "is the corresponding hash to",
                           ''.join(s))
 
-
+# parser to choose which function one wants to choose and change its inputs
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Crack a Hash')
 
@@ -155,7 +156,7 @@ if __name__ == "__main__":
         which file you want to hash, default is words_alpha.txt")
 
     args = parser.parse_args()
-
+    #parsing the arguments and choosing which program to run
     if args.type == "dictionary":
         if args.multiprocessing == 1:
             if args.type2 == "List":
